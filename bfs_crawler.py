@@ -57,6 +57,7 @@ def commentParser(url):
 	else:
 		return None
 
+
 def urlParser(comment, node):
 	""" Take parsed comment and find hyperlinks to other subreddits (nodes).
 			:param comment: str object with the content of one parsed comment
@@ -69,18 +70,20 @@ def urlParser(comment, node):
 		match = match.group(1).lower()
 		return match
 
+
 def matchFinder(df, node):
-    """ Take DF with all comments and find matches for links to other
+	""" Take DF with all comments and find matches for links to other
     	subreddits. Eliminate self-links.
     	:param df: PD dataframe object with all parsed comments
     	:param node: str object with name of the subreddit currently
     	being analyzed
     	:return PD dataframe with matches added in a new column
     """
-    df['Match'] = df['body'].apply(lambda x: urlParser(x, node))
-    df.dropna(inplace=True)
-    df = df[df['Match'] != node]
-    return df
+	df['Match'] = df['body'].apply(lambda x: urlParser(x, node))
+	df.dropna(inplace=True)
+	df = df[df['Match'] != node]
+	return df
+
 
 def apiParser(node, min_utc, max_utc, comments_df):
 	""" Parse all comments for a given subreddit within the given time period.
@@ -106,16 +109,17 @@ def apiParser(node, min_utc, max_utc, comments_df):
 			next_utc = int(re.search(next_utc_re, new_url).group(1))
 
 			comments_df = comments_df.append(parser_results[0].loc[:,
-													['author',
-													 'body',
-													 'created_utc',
-													 'id']], ignore_index=True)
+											 ['author',
+											  'body',
+											  'created_utc',
+											  'id']], ignore_index=True)
 
 			if next_utc >= max_utc:
 				break
 			else:
 				parser_results = commentParser(new_url)
 		return comments_df
+
 
 def graphAdder(df, graph, node, queue):
 	"""Count frequency of each link in results, and add weighted 
@@ -207,5 +211,4 @@ else:
 
 # Write network to disk
 nx.write_graphml(network, 'network_{one}_{two}.graphml'.format(one=origin_node,
-													 two=min_utc))
-
+															   two=min_utc))
