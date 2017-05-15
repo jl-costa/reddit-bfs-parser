@@ -14,10 +14,10 @@ import time
 # API setup
 # Replace #### with your creds
 reddit = praw.Reddit(client_id='####',
-					 client_secret='####',
-					 password='####',
-					 user_agent='Network bot by /u/####',
-					 username='####')
+		     client_secret='####',
+		     password='####',
+		     user_agent='Network bot by /u/####',
+		     username='####')
 
 # Verify connection to API:
 print('successfully connected to Reddit API with user: ', reddit.user.me())
