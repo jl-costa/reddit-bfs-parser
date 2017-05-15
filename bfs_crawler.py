@@ -60,10 +60,10 @@ def commentParser(url):
 
 def urlParser(comment, node):
 	""" Take parsed comment and find hyperlinks to other subreddits (nodes).
-			:param comment: str object with the content of one parsed comment
-			:param node: str object with the name of the subreddit in which comment
-			was parsed
-			:return: str object with the parsed hyperlink (if any)
+		:param comment: str object with the content of one parsed comment
+		:param node: str object with the name of the subreddit in which comment
+		was parsed
+		:return: str object with the parsed hyperlink (if any)
 	"""
 	match = re.search(url_re, comment)
 	if match and match.group(1) != node:
@@ -74,11 +74,11 @@ def urlParser(comment, node):
 def matchFinder(df, node):
 	""" Take DF with all comments and find matches for links to other
     	subreddits. Eliminate self-links.
-    	:param df: PD dataframe object with all parsed comments
-    	:param node: str object with name of the subreddit currently
-    	being analyzed
-    	:return PD dataframe with matches added in a new column
-    """
+		:param df: PD dataframe object with all parsed comments
+		:param node: str object with name of the subreddit currently
+		being analyzed
+		:return PD dataframe with matches added in a new column
+    	"""
 	df['Match'] = df['body'].apply(lambda x: urlParser(x, node))
 	df.dropna(inplace=True)
 	df = df[df['Match'] != node]
@@ -87,14 +87,14 @@ def matchFinder(df, node):
 
 def apiParser(node, min_utc, max_utc, comments_df):
 	""" Parse all comments for a given subreddit within the given time period.
-			:param node: str object with the name of the subreddit to parse
-			:param min_utc: int object with POSIX value of minimum date of defined time period
-			:param max_utc: int object with POSIX value of maximum date of defined time period
-			:param comments_df: Pandas DF object for storing all parsed comments
-			:return: PD dataframe object with all parsed comments appended to it
+		:param node: str object with the name of the subreddit to parse
+		:param min_utc: int object with POSIX value of minimum date of defined time period
+		:param max_utc: int object with POSIX value of maximum date of defined time period
+		:param comments_df: Pandas DF object for storing all parsed comments
+		:return: PD dataframe object with all parsed comments appended to it
 	"""
 	url = "https://apiv2.pushshift.io/reddit/search/comment/?subreddit={sub}&after={min_d}".format(sub=node,
-																								   min_d=min_utc)
+												       min_d=min_utc)
 	# Execute commentParser to fetch first page of results for node
 	parser_results = commentParser(url)
 
@@ -109,10 +109,10 @@ def apiParser(node, min_utc, max_utc, comments_df):
 			next_utc = int(re.search(next_utc_re, new_url).group(1))
 
 			comments_df = comments_df.append(parser_results[0].loc[:,
-											 ['author',
-											  'body',
-											  'created_utc',
-											  'id']], ignore_index=True)
+									       ['author',
+										'body',
+										'created_utc',
+										'id']], ignore_index=True)
 
 			if next_utc >= max_utc:
 				break
@@ -123,14 +123,14 @@ def apiParser(node, min_utc, max_utc, comments_df):
 
 def graphAdder(df, graph, node, queue):
 	"""Count frequency of each link in results, and add weighted 
-    edges to graph object.
-	:param df: PD dataframe object with all parsed comments and matches
-	:param graph: Networkx DiGraph() object
-	:param node: str object with name of the subreddit currently
-	being analyzed
-	:param queue: queue object of the BFS crawler
-	:return: graph object with new weighted edges and nodes
-	:return: queue object with new nodes added
+	edges to graph object.
+		:param df: PD dataframe object with all parsed comments and matches
+		:param graph: Networkx DiGraph() object
+		:param node: str object with name of the subreddit currently
+		being analyzed
+		:param queue: queue object of the BFS crawler
+		:return: graph object with new weighted edges and nodes
+		:return: queue object with new nodes added
 	"""
 	# 'Internal' visited set to avoid double iteration of duplicate matches
 	graph_visited = set()
@@ -211,4 +211,4 @@ else:
 
 # Write network to disk
 nx.write_graphml(network, 'network_{one}_{two}.graphml'.format(one=origin_node,
-															   two=min_utc))
+							       two=min_utc))
